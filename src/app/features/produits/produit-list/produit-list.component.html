@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="produits-page">
+        <!-- Navbar -->
+        <nav class="navbar">
+  <div class="navbar-brand">
+    <h1>📦 Gestion Stock Textile</h1>
+  </div>
+  <div class="navbar-menu">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <span class="icon">🏠</span> Dashboard
+    </a>
+    <a routerLink="/produits" routerLinkActive="active">
+      <span class="icon">📦</span> Produits
+    </a>
+    <a routerLink="/mouvements" routerLinkActive="active">
+      <span class="icon">📊</span> Mouvements
+    </a>
+    <a routerLink="/fournisseurs" routerLinkActive="active">
+      <span class="icon">🏢</span> Fournisseurs
+    </a>
+    <a routerLink="/commandes" routerLinkActive="active">
+      <span class="icon">📋</span> Commandes
+    </a>
+    <button (click)="logout()" class="btn-logout">Déconnexion</button>
+  </div>
+</nav>
+      
+        <!-- Content -->
+        <div class="content">
+          <div class="header">
+            <div>
+              <h2>Gestion des Produits</h2>
+              <p>{{ filteredProduits.length }} produit(s) disponible(s)</p>
+            </div>
+            <button class="btn-primary" (click)="openAddForm()">
+              ➕ Ajouter un produit
+            </button>
+          </div>
+      
+          <!-- Search -->
+          <div class="search-bar">
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm" 
+              (ngModelChange)="filterProduits()"
+              placeholder="🔍 Rechercher par nom, référence ou catégorie..."
+              class="search-input">
+          </div>
+      
+          <!-- Loading -->
+          <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Chargement des produits...</p>
+          </div>
+      
+          <!-- Empty State -->
+          <div *ngIf="!loading && filteredProduits.length === 0" class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>Aucun produit trouvé</h3>
+            <p *ngIf="searchTerm">Aucun résultat pour "{{ searchTerm }}"</p>
+            <p *ngIf="!searchTerm">Commencez par ajouter votre premier produit</p>
+            <button class="btn-primary" (click)="openAddForm()">Ajouter un produit</button>
+          </div>
+      
+          <!-- Products Table -->
+          <div *ngIf="!loading && filteredProduits.length > 0" class="table-container">
+            <table class="produits-table">
+              <thead>
+                <tr>
+                  <th>Référence</th>
+                  <th>Nom</th>
+                  <th>Description</th>
+                  <th>Quantité</th>
+                  <th>Prix Unitaire</th>
+                  <th>Seuil Alerte</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let produit of filteredProduits">
+                  <td><strong>{{ produit.reference }}</strong></td>
+                  <td>{{ produit.nom }}</td>
+                  <td>{{ produit.description || '-' }}</td>
+                  <td>
+                    <span 
+                      class="badge-quantity" 
+                      [ngClass]="isStockLow(produit) ? 'low' : 'normal'">
+                      {{ produit.quantite }}
+                    </span>
+                  </td>
+                  <td>{{ produit.prixUnitaire }} DT</td>
+                  <td>{{ produit.seuilAlerte }}</td>
+                  <td>
+                    <span 
+                      class="badge-status" 
+                      [ngClass]="isStockLow(produit) ? 'warning' : 'success'">
+                      {{ isStockLow(produit) ? '⚠️ Stock faible' : '✅ Disponible' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button 
+                      class="btn-action edit" 
+                      (click)="openEditForm(produit)"
+                      title="Modifier">
+                      ✏️
+                    </button>
+                    <button 
+                      class="btn-action delete" 
+                      (click)="deleteProduit(produit.id!)"
+                      title="Supprimer">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      
+        <!-- Modal Form -->
+        <div class="modal-overlay" *ngIf="showForm" (click)="closeForm()">
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>{{ isEditMode ? 'Modifier le produit' : 'Ajouter un produit' }}</h3>
+              <button class="btn-close" (click)="closeForm()">✖</button>
+            </div>
+      
+            <form (ngSubmit)="saveProduit()" #produitForm="ngForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="reference">Référence *</label>
+                  <input 
+                    type="text" 
+                    id="reference"
+                    [(ngModel)]="currentProduit.reference" 
+                    name="reference"
+                    [disabled]="isEditMode"
+                    required>
+                </div>
+      
+                <div class="form-group">
+                  <label for="nom">Nom du produit *</label>
+                  <input 
+                    type="text" 
+                    id="nom"
+                    [(ngModel)]="currentProduit.nom" 
+                    name="nom"
+                    required>
+                </div>
+              </div>
+      
+              <div class="form-group">
+                <label for="description">Description</label>
+                <textarea 
+                  id="description"
+                  [(ngModel)]="currentProduit.description" 
+                  name="description"
+                  rows="3"></textarea>
+              </div>
+      
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="quantite">Quantité *</label>
+                  <input 
+                    type="number" 
+                    id="quantite"
+                    [(ngModel)]="currentProduit.quantite" 
+                    name="quantite"
+                    min="0"
+                    required>
+                </div>
+      
+                <div class="form-group">
+                  <label for="prixUnitaire">Prix Unitaire (DT) *</label>
+                  <input 
+                    type="number" 
+                    id="prixUnitaire"
+                    [(ngModel)]="currentProduit.prixUnitaire" 
+                    name="prixUnitaire"
+                    min="0"
+                    step="0.01"
+                    required>
+                </div>
+      
+                <div class="form-group">
+                  <label for="seuilAlerte">Seuil d'alerte *</label>
+                  <input 
+                    type="number" 
+                    id="seuilAlerte"
+                    [(ngModel)]="currentProduit.seuilAlerte" 
+                    name="seuilAlerte"
+                    min="0"
+                    required>
+                </div>
+              </div>
+                <div class="form-row">
+    <div class="form-group">
+      <label for="fournisseur">Fournisseur</label>
+      <select 
+        id="fournisseur"
+        [(ngModel)]="currentProduit.fournisseurId" 
+        name="fournisseur"
+        class="form-select">
+        <option [ngValue]="undefined">-- Sélectionner un fournisseur (optionnel) --</option>
+        <option *ngFor="let f of fournisseurs" [ngValue]="f.id">
+          {{ f.nom }}
+        </option>
+      </select>
+    </div>
+        <div class="form-group">
+      <label for="categorie">Catégorie</label>
+      <select 
+        id="categorie"
+        [(ngModel)]="currentProduit.categorieId" 
+        name="categorie"
+        class="form-select">
+        <option [ngValue]="undefined">-- Sélectionner une catégorie (optionnel) --</option>
+        <option [ngValue]="1">Coton</option>
+        <option [ngValue]="2">Synthétique</option>
+        <option [ngValue]="3">Mélange</option>
+        <option [ngValue]="4">Soie</option>
+        <option [ngValue]="5">Lin</option>
+        <option [ngValue]="6">Laine</option>
+      </select>
+    </div>
+  </div>
+      
+              <div class="modal-actions">
+                <button type="button" class="btn-secondary" (click)="closeForm()">
+                  Annuler
+                </button>
+                <button 
+                  type="submit" 
+                  class="btn-primary"
+                  [disabled]="produitForm.invalid">
+                  {{ isEditMode ? 'Modifier' : 'Ajouter' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+</body>
+</html>

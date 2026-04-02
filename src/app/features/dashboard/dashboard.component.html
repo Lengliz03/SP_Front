@@ -1,0 +1,199 @@
+<div class="rapports-page">
+  <app-navbar [username]="username"></app-navbar>
+
+  <div class="content">
+    <div class="header">
+      <h2>📈 Rapports & Statistiques</h2>
+      <p>Vue d'ensemble de votre activité</p>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des statistiques...</p>
+    </div>
+
+    <!-- Statistiques Globales -->
+    <div *ngIf="!loading && stats" class="stats-section">
+      <h3>📊 Vue d'ensemble</h3>
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">📦</div>
+          <div class="stat-content">
+            <h4>Total Produits</h4>
+            <p class="stat-number">{{ stats.totalProduits }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card green">
+          <div class="stat-icon">📊</div>
+          <div class="stat-content">
+            <h4>Stock Total</h4>
+            <p class="stat-number">{{ stats.stockTotal }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card orange">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-content">
+            <h4>Alertes Stock</h4>
+            <p class="stat-number">{{ stats.produitsEnAlerte }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card purple">
+          <div class="stat-icon">💰</div>
+          <div class="stat-content">
+            <h4>Valeur Stock</h4>
+            <p class="stat-number">{{ stats.valeurTotaleStock | number:'1.2-2' }} DT</p>
+          </div>
+        </div>
+
+        <div class="stat-card teal">
+          <div class="stat-icon">🏢</div>
+          <div class="stat-content">
+            <h4>Fournisseurs</h4>
+            <p class="stat-number">{{ stats.totalFournisseurs }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card pink">
+          <div class="stat-icon">📋</div>
+          <div class="stat-content">
+            <h4>Commandes</h4>
+            <p class="stat-number">{{ stats.totalCommandes }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mouvements Statistics -->
+    <div *ngIf="!loading && stats" class="section">
+      <div class="section-header">
+        <h3>🔄 Mouvements de Stock</h3>
+      </div>
+      <div class="mouvements-stats-grid">
+        <div class="mouv-stat entree">
+          <span class="mouv-icon">⬆️</span>
+          <div>
+            <h4>Entrées</h4>
+            <p class="mouv-number">{{ stats.mouvementsEntree }}</p>
+          </div>
+        </div>
+        <div class="mouv-stat sortie">
+          <span class="mouv-icon">⬇️</span>
+          <div>
+            <h4>Sorties</h4>
+            <p class="mouv-number">{{ stats.mouvementsSortie }}</p>
+          </div>
+        </div>
+        <div class="mouv-stat attente">
+          <span class="mouv-icon">⏳</span>
+          <div>
+            <h4>Commandes en attente</h4>
+            <p class="mouv-number">{{ stats.commandesEnAttente }}</p>
+          </div>
+        </div>
+        <div class="mouv-stat recue">
+          <span class="mouv-icon">✅</span>
+          <div>
+            <h4>Commandes reçues</h4>
+            <p class="mouv-number">{{ stats.commandesRecues }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphique Mouvements par Jour -->
+    <div *ngIf="!loading && mouvementsStats.length > 0" class="section">
+      <div class="section-header">
+        <h3>📈 Évolution des Mouvements (14 derniers jours)</h3>
+      </div>
+      <div class="chart-container">
+        <div class="simple-chart">
+          <div class="chart-legend">
+            <span class="legend-item entree">
+              <span class="legend-color"></span>
+              Entrées
+            </span>
+            <span class="legend-item sortie">
+              <span class="legend-color"></span>
+              Sorties
+            </span>
+          </div>
+          <div class="chart-bars">
+            <div *ngFor="let stat of mouvementsStats" class="bar-group">
+              <div class="bars">
+                <div 
+                  class="bar entree" 
+                  [style.height.%]="(stat.entrees / getMaxValue()) * 100"
+                  [title]="'Entrées: ' + stat.entrees">
+                </div>
+                <div 
+                  class="bar sortie" 
+                  [style.height.%]="(stat.sorties / getMaxValue()) * 100"
+                  [title]="'Sorties: ' + stat.sorties">
+                </div>
+              </div>
+              <span class="bar-label">{{ stat.date }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Produits -->
+    <div *ngIf="!loading && topProduits.length > 0" class="section">
+      <div class="section-header">
+        <h3>🏆 Top 10 Produits par Valeur</h3>
+      </div>
+      <div class="table-container">
+        <table class="top-produits-table">
+          <thead>
+            <tr>
+              <th>Rang</th>
+              <th>Produit</th>
+              <th>Référence</th>
+              <th>Quantité</th>
+              <th>Valeur Totale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let produit of topProduits; let i = index">
+              <td>
+                <span class="rank" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
+                  {{ i + 1 }}
+                </span>
+              </td>
+              <td><strong>{{ produit.nom }}</strong></td>
+              <td>{{ produit.reference }}</td>
+              <td>{{ produit.quantite }}</td>
+              <td class="valeur">{{ produit.valeur | number:'1.2-2' }} DT</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="section export-section">
+      <h3>📥 Exporter les Données</h3>
+      <div class="export-buttons">
+        <button class="btn-export" (click)="exportProduits()">
+          <span class="export-icon">📊</span>
+          <div>
+            <strong>Exporter Produits</strong>
+            <small>Télécharger la liste complète en Excel</small>
+          </div>
+        </button>
+        <button class="btn-export" (click)="exportMouvements()">
+          <span class="export-icon">🔄</span>
+          <div>
+            <strong>Exporter Mouvements</strong>
+            <small>Télécharger l'historique en Excel</small>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

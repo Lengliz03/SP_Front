@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="fournisseurs-page">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>📦 Gestion Stock Textile</h1>
+    </div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <span class="icon">🏠</span> Dashboard
+      </a>
+      <a routerLink="/produits" routerLinkActive="active">
+        <span class="icon">📦</span> Produits
+      </a>
+      <a routerLink="/mouvements" routerLinkActive="active">
+        <span class="icon">📊</span> Mouvements
+      </a>
+      <a routerLink="/fournisseurs" routerLinkActive="active">
+        <span class="icon">🏢</span> Fournisseurs
+      </a>
+      <a routerLink="/commandes" routerLinkActive="active">
+        <span class="icon">📋</span> Commandes
+      </a>
+      <button (click)="logout()" class="btn-logout">Déconnexion</button>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="header">
+      <div>
+        <h2>Gestion des Fournisseurs</h2>
+        <p>{{ filteredFournisseurs.length }} fournisseur(s)</p>
+      </div>
+      <button class="btn-primary" (click)="openAddForm()">
+        ➕ Nouveau fournisseur
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="filterFournisseurs()"
+        placeholder="🔍 Rechercher par nom, email ou pays..."
+        class="search-input">
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredFournisseurs.length === 0" class="empty-state">
+      <div class="empty-icon">🏢</div>
+      <h3>Aucun fournisseur trouvé</h3>
+      <p *ngIf="searchTerm">Aucun résultat pour "{{ searchTerm }}"</p>
+      <p *ngIf="!searchTerm">Commencez par ajouter votre premier fournisseur</p>
+      <button class="btn-primary" (click)="openAddForm()">Ajouter un fournisseur</button>
+    </div>
+
+    <!-- Fournisseurs Grid -->
+    <div *ngIf="!loading && filteredFournisseurs.length > 0" class="fournisseurs-grid">
+      <div *ngFor="let fournisseur of filteredFournisseurs" class="fournisseur-card">
+        <div class="card-header">
+          <h3>{{ fournisseur.nom }}</h3>
+          <div class="card-actions">
+            <button class="btn-icon edit" (click)="openEditForm(fournisseur)" title="Modifier">✏️</button>
+            <button class="btn-icon delete" (click)="deleteFournisseur(fournisseur.id!)" title="Supprimer">🗑️</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="info-row" *ngIf="fournisseur.email">
+            <span class="icon">📧</span>
+            <span>{{ fournisseur.email }}</span>
+          </div>
+          <div class="info-row" *ngIf="fournisseur.telephone">
+            <span class="icon">📞</span>
+            <span>{{ fournisseur.telephone }}</span>
+          </div>
+          <div class="info-row" *ngIf="fournisseur.adresse">
+            <span class="icon">📍</span>
+            <span>{{ fournisseur.adresse }}</span>
+          </div>
+          <div class="info-row" *ngIf="fournisseur.pays">
+            <span class="icon">🌍</span>
+            <span>{{ fournisseur.pays }}</span>
+          </div>
+          <div class="info-row" *ngIf="fournisseur.notes">
+            <span class="icon">📝</span>
+            <span class="notes">{{ fournisseur.notes }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form -->
+  <div class="modal-overlay" *ngIf="showForm" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ isEditMode ? 'Modifier le fournisseur' : 'Nouveau fournisseur' }}</h3>
+        <button class="btn-close" (click)="closeForm()">✖</button>
+      </div>
+
+      <form (ngSubmit)="saveFournisseur()" #fournisseurForm="ngForm">
+        <div class="form-group">
+          <label for="nom">Nom du fournisseur *</label>
+          <input 
+            type="text" 
+            id="nom"
+            [(ngModel)]="currentFournisseur.nom" 
+            name="nom"
+            required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              id="email"
+              [(ngModel)]="currentFournisseur.email" 
+              name="email">
+          </div>
+
+          <div class="form-group">
+            <label for="telephone">Téléphone</label>
+            <input 
+              type="tel" 
+              id="telephone"
+              [(ngModel)]="currentFournisseur.telephone" 
+              name="telephone">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="adresse">Adresse</label>
+          <input 
+            type="text" 
+            id="adresse"
+            [(ngModel)]="currentFournisseur.adresse" 
+            name="adresse">
+        </div>
+
+        <div class="form-group">
+          <label for="pays">Pays</label>
+          <input 
+            type="text" 
+            id="pays"
+            [(ngModel)]="currentFournisseur.pays" 
+            name="pays">
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notes</label>
+          <textarea 
+            id="notes"
+            [(ngModel)]="currentFournisseur.notes" 
+            name="notes"
+            rows="3"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeForm()">Annuler</button>
+          <button type="submit" class="btn-primary" [disabled]="fournisseurForm.invalid">
+            {{ isEditMode ? 'Modifier' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

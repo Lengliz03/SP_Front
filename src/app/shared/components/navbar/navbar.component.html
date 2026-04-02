@@ -1,0 +1,27 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <h1>📦 Gestion Stock Textile</h1>
+  </div>
+  <div class="navbar-menu">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <span class="icon">🏠</span> Dashboard
+    </a>
+    <a routerLink="/produits" routerLinkActive="active">
+      <span class="icon">📦</span> Produits
+    </a>
+    <a routerLink="/mouvements" routerLinkActive="active">
+      <span class="icon">📊</span> Mouvements
+    </a>
+    <a routerLink="/fournisseurs" routerLinkActive="active">
+      <span class="icon">🏢</span> Fournisseurs
+    </a>
+    <a routerLink="/commandes" routerLinkActive="active">
+      <span class="icon">📋</span> Commandes
+    </a>
+    <div class="navbar-user" *ngIf="username">
+      <span class="username">👤 {{ username }}</span>
+      <button (click)="logout()" class="btn-logout">Déconnexion</button>
+    </div>
+    <button *ngIf="!username" (click)="logout()" class="btn-logout">Déconnexion</button>
+  </div>
+</nav>

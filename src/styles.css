@@ -1,0 +1,388 @@
+/* Global Shared Styles - Extracted from components to fix budget issues */
+
+/* Layout & Spacing */
+:where(.content) {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+:where(.header) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+:where(.header h2) {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+:where(.header p) {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Navbar (component-specific navbar.component.css takes precedence) */
+:where(.navbar) {
+  background: white;
+  padding: 15px 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+:where(.navbar-brand h1) {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+  font-weight: 700;
+}
+
+:where(.navbar-menu) {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+:where(.navbar-menu a) {
+  text-decoration: none;
+  color: #666;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+:where(.navbar-menu a:hover) {
+  background: #f0f0f0;
+  color: #667eea;
+}
+
+:where(.navbar-menu a.active) {
+  background: #667eea;
+  color: white;
+}
+
+:where(.btn-logout) {
+  padding: 8px 16px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+  font-size: 14px;
+}
+
+:where(.btn-logout:hover) {
+  background: #c0392b;
+}
+
+/* Buttons */
+:where(.btn-primary) {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+:where(.btn-primary:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+:where(.btn-primary:disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+:where(.btn-secondary) {
+  padding: 12px 24px;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+:where(.btn-secondary:hover) {
+  background: #e0e0e0;
+}
+
+:where(.btn-action), :where(.btn-icon), :where(.btn-close), :where(.btn-remove) {
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+
+:where(.btn-action.edit:hover), :where(.btn-icon.edit:hover) {
+  background: #e3f2fd;
+}
+
+:where(.btn-action.delete:hover), :where(.btn-icon.delete:hover), :where(.btn-remove:hover) {
+  background: #ffebee;
+}
+
+:where(.btn-close:hover) {
+  color: #333;
+}
+
+:where(.btn-add) {
+  padding: 12px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+:where(.btn-add:hover) {
+  background: #45a049;
+}
+
+/* Forms & Inputs */
+:where(.search-bar), :where(.filters) {
+  margin-bottom: 25px;
+}
+
+:where(.search-input), :where(.filter-select), :where(input), :where(textarea), :where(select), :where(.form-select) {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+  font-family: inherit;
+  background: white;
+}
+
+:where(.search-input:focus), :where(.filter-select:focus), :where(input:focus), :where(textarea:focus), :where(select:focus), :where(.form-select:focus) {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
+:where(input:disabled) {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+:where(.form-group label) {
+  display: block;
+  margin-bottom: 8px;
+  color: #444;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+:where(.form-row) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+:where(.form-group) {
+  margin-bottom: 20px;
+}
+
+/* Loading & Empty States */
+:where(.loading) {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+:where(.spinner) {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+:where(.empty-state) {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+:where(.empty-icon) {
+  font-size: 80px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+:where(.empty-state h3) {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+:where(.empty-state p) {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* Tables */
+:where(.table-container) {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+:where(table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:where(thead) {
+  background: #f8f9fa;
+}
+
+:where(th) {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+:where(td) {
+  padding: 16px;
+  border-top: 1px solid #f0f0f0;
+  color: #333;
+}
+
+:where(tbody tr:hover) {
+  background: #f8f9fa;
+}
+
+/* Modals */
+:where(.modal-overlay) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:where(.modal-content) {
+  background: white;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s;
+}
+
+:where(.modal-header) {
+  padding: 25px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+:where(.modal-header h3) {
+  margin: 0;
+  color: #333;
+  font-size: 22px;
+}
+
+:where(.modal-actions) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+:where(form) {
+  padding: 25px;
+}
+
+/* Badges */
+:where(.badge-status), :where(.badge-type), :where(.badge-statut) {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Icons */
+:where(.icon) {
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :where(.content) {
+    padding: 20px 15px;
+  }
+}
+

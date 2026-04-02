@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="mouvements-page">
+        <!-- Navbar -->
+        <nav class="navbar">
+          <div class="navbar-brand">
+            <h1>📦 Gestion Stock Textile</h1>
+          </div>
+          <div class="navbar-menu">
+            <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+              <span class="icon">🏠</span> Dashboard
+            </a>
+            <a routerLink="/produits" routerLinkActive="active">
+              <span class="icon">📦</span> Produits
+            </a>
+            <a routerLink="/mouvements" routerLinkActive="active">
+              <span class="icon">📊</span> Mouvements
+            </a>
+            <a routerLink="/fournisseurs" routerLinkActive="active">
+              <span class="icon">🏢</span> Fournisseurs
+            </a>
+            <a routerLink="/commandes" routerLinkActive="active">
+              <span class="icon">📋</span> Commandes
+            </a>
+            <button (click)="logout()" class="btn-logout">Déconnexion</button>
+          </div>
+        </nav>
+      
+        <!-- Content -->
+        <div class="content">
+          <div class="header">
+            <div>
+              <h2>Mouvements de Stock</h2>
+              <p>Historique des entrées et sorties</p>
+            </div>
+            <button class="btn-primary" (click)="openForm()">
+              ➕ Nouveau mouvement
+            </button>
+          </div>
+      
+          <!-- Filters -->
+          <div class="filters">
+            <label>Filtrer par type:</label>
+            <select [(ngModel)]="filterType" (ngModelChange)="loadMouvements()" class="filter-select">
+              <option value="ALL">Tous les mouvements</option>
+              <option value="ENTREE">Entrées uniquement</option>
+              <option value="SORTIE">Sorties uniquement</option>
+            </select>
+          </div>
+      
+          <!-- Loading -->
+          <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Chargement des mouvements...</p>
+          </div>
+      
+          <!-- Empty State -->
+          <div *ngIf="!loading && mouvements.length === 0" class="empty-state">
+            <div class="empty-icon">📊</div>
+            <h3>Aucun mouvement enregistré</h3>
+            <p>Commencez par enregistrer votre premier mouvement de stock</p>
+            <button class="btn-primary" (click)="openForm()">Nouveau mouvement</button>
+          </div>
+      
+          <!-- Mouvements Table -->
+          <div *ngIf="!loading && mouvements.length > 0" class="table-container">
+            <table class="mouvements-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Produit</th>
+                  <th>Référence Produit</th>
+                  <th>Quantité</th>
+                  <th>Motif</th>
+                  <th>Référence</th>
+                  <th>Utilisateur</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let mouvement of mouvements">
+                  <td>{{ mouvement.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>
+                    <span class="badge-type" [ngClass]="getTypeBadgeClass(mouvement.type)">
+                      {{ mouvement.type === 'ENTREE' ? '⬆️ Entrée' : '⬇️ Sortie' }}
+                    </span>
+                  </td>
+                  <td><strong>{{ mouvement.produitNom }}</strong></td>
+                  <td>{{ mouvement.produitReference }}</td>
+                  <td>
+                    <span class="quantite" [ngClass]="mouvement.type">
+                      {{ mouvement.type === 'ENTREE' ? '+' : '-' }}{{ mouvement.quantite }}
+                    </span>
+                  </td>
+                  <td>{{ mouvement.motif || '-' }}</td>
+                  <td>{{ mouvement.reference || '-' }}</td>
+                  <td>{{ mouvement.username }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      
+        <!-- Modal Form -->
+        <div class="modal-overlay" *ngIf="showForm" (click)="closeForm()">
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>Nouveau Mouvement de Stock</h3>
+              <button class="btn-close" (click)="closeForm()">✖</button>
+            </div>
+      
+            <form (ngSubmit)="saveMouvement()" #mouvementForm="ngForm">
+              <div class="form-group">
+                <label for="type">Type de mouvement *</label>
+                <select 
+                  id="type"
+                  [(ngModel)]="newMouvement.type" 
+                  name="type"
+                  required
+                  class="form-select">
+                  <option value="ENTREE">⬆️ Entrée (Réception de stock)</option>
+                  <option value="SORTIE">⬇️ Sortie (Vente/Utilisation)</option>
+                </select>
+              </div>
+      
+              <div class="form-group">
+                <label for="produit">Produit *</label>
+                <select 
+                  id="produit"
+                  [(ngModel)]="newMouvement.produitId" 
+                  name="produit"
+                  required
+                  class="form-select">
+                  <option [ngValue]="0">-- Sélectionner un produit --</option>
+                  <option *ngFor="let produit of produits" [ngValue]="produit.id">
+                    {{ produit.nom }} ({{ produit.reference }}) - Stock actuel: {{ produit.quantite }}
+                  </option>
+                </select>
+              </div>
+      
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="quantite">Quantité *</label>
+                  <input 
+                    type="number" 
+                    id="quantite"
+                    [(ngModel)]="newMouvement.quantite" 
+                    name="quantite"
+                    min="1"
+                    required>
+                </div>
+      
+                <div class="form-group">
+                  <label for="reference">Référence (N° bon)</label>
+                  <input 
+                    type="text" 
+                    id="reference"
+                    [(ngModel)]="newMouvement.reference" 
+                    name="reference"
+                    placeholder="Ex: BC-2024-001">
+                </div>
+              </div>
+      
+              <div class="form-group">
+                <label for="motif">Motif</label>
+                <textarea 
+                  id="motif"
+                  [(ngModel)]="newMouvement.motif" 
+                  name="motif"
+                  rows="3"
+                  placeholder="Raison du mouvement..."></textarea>
+              </div>
+      
+              <div class="modal-actions">
+                <button type="button" class="btn-secondary" (click)="closeForm()">
+                  Annuler
+                </button>
+                <button 
+                  type="submit" 
+                  class="btn-primary"
+                  [disabled]="mouvementForm.invalid">
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+</body>
+</html>
